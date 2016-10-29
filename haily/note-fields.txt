@@ -1,0 +1,83 @@
+def parse_boolean(s):
+        return s.lower=='true'
+
+def output_date(s):
+        return 'fixme' # FIXME
+
+def parse_date(s)
+        return 'fixme' # FIXME
+
+
+NOTE_FIELDS = (
+                {
+                       'name': 'title',
+                       'default': 'New note',
+                       'output': str,
+                       'parse': str,
+                },
+
+                {
+                       'name': 'description',
+                       'default': 'Describe your note here.',
+                       'output': str,
+                       'parse': str,
+                },
+
+                {
+                       'name': 'note-content-version',
+                       'default': '0.1',
+                       'output': str,
+                       'parse': str,
+                },
+
+                {
+                       'name': 'open-on-startup',
+                       'default': False,
+                       'output': str,
+                       'parse': _parse_boolean,
+                },
+
+                {
+                       'name': 'pinned',
+                       'default': False,
+                       'output': str,
+                       'parse': _parse_boolean,
+                },
+
+                {
+                       'name': 'last-change-date',
+                       'default': None,
+                       'output': _output_date,
+                       'parse': _parse_date,
+                },
+
+                {
+                       'name': 'last-metadata-change-date',
+                       'default': None,
+                       'output': _output_date,
+                       'parse': _parse_date,
+                },
+
+                {
+                       'name': 'create-date',
+                       'default': None,
+                       'output': _output_date,
+                       'parse': _parse_date,
+                },
+
+                {
+                       'name': 'tags',
+                       'default': [],
+                       'output': _output_tags,
+                       'parse': _parse_tags,
+                },
+
+                ('note-content': 'Describe your note here.',
+                ('note-content-version': '0.1',
+                ('last-change-date': None,
+                ('last-metadata-change-date': None,
+                ('create-date': None,
+                ('open-on-startup': False,
+                ('pinned': False,
+                ('tags': [],
+              )
