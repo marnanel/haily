@@ -2,43 +2,50 @@ import git
 import email.message
 import email.utils
 import datetime
+from uuid import uuid4
 
 class HailyNote(object):
 
-        def __init__(self, source=None):
+        def __init__(self,
+                source=None,
+                uuid=None):
+
+                now = datetime.datetime.now()
+
+                if uuid is None:
+                        uuid = uuid4()
 
                 self._content = {
-                                # XXX title should probably be made unique
                                 'title': 'New note',
                                 'note-content': 'Describe your note here.',
                                 'note-content-version': '0.1',
-                                'last-change-date': None,
-                                'last-metadata-change-date': None,
-                                'create-date': None,
+                                'last-change-date': now,
+                                'last-metadata-change-date': now,
+                                'create-date': now,
                                 'open-on-startup': False,
                                 'pinned': False,
                                 'tags': [],
+                                'uuid': uuid,
                 }
 
                 if source is not None:
                         message = email.message_from_string(source)
 
-                        for field in ('title', 'note-content-version'):
-                                self._content[field] = message[field.title()]
+                        for (field, value) in message.items():
 
-                        for field in ('open-on-startup', 'pinned'):
-                                self._content[field] = (message[field.title()]=='True')
+                                if field=='tag':
+                                        # special-cased; ignore
+                                        continue
 
-                        # XXX dates
+                                self[field] = value
 
-                        # tags
-                        self._content['tags'] = message.get_all('Tag', [])
+                        self._content['tags'] = message.get_all('tag', [])
 
                         if not message.is_multipart():
                                 self._content['note-content'] = message.get_payload()
-                        # never mind if it *is* multipart;
-                        # it never should be, so we can stick
-                        # with the default.
+                        else:
+                                # should never happen
+                                raise ValueError('message was multipart')
  
         def __str__(self):
                 message = email.message.Message()
@@ -46,7 +53,8 @@ class HailyNote(object):
                 # Strings and booleans
                 for field in ('title', 'note-content-version',
                         'open-on-startup', 'pinned'):
-                        message.add_header(field.title(),
+
+                        message.add_header(field,
                                 str(self._content[field]))
 
                 # Dates
@@ -59,15 +67,78 @@ class HailyNote(object):
                         if value is None:
                                 value = datetime.datetime.now()
 
-                        message.add_header(field.title(), str(value))
+                        message.add_header(field, str(value))
 
                 # Tags
                 for tag in self._content['tags']:
-                        message.add_header('Tag', tag)
+                        message.add_header('tag', tag)
 
                 # note-content, stored as the payload (body) of the message
                 message.set_payload(self._content['note-content'])
 
                 return message.as_string()
+
+        def __getitem__(self, field):
+                return self._content[field]
+
+        def __setitem__(self, field, value):
+
+                if value is None:
+                        raise ValueError('value was None')
+
+                if field in (
+                                # Strings
+                                'title',
+                                'note-content',
+                                'note-content-version',
+                                ):
+                        self._content[field] = str(value)
+
+                elif field in (
+                                # Dates
+                                'last-change-date',
+                                'last-metadata-change-date',
+                                'create-date',
+                 ):
+                        if type(value)==str:
+                                value = email.utils.parsedate(value)
+                                
+                                if value is None:
+                                        raise ValueError('string didn\'t represent a date')
+
+                                self._content[field] = value
+
+                        elif type(value)==datetime.datetime:
+                                self._content[field] = value
+                        else:
+                                raise ValueError('we need a string or a datetime')
+
+                elif field in (
+                                # Booleans
+                               'open-on-startup',
+                               'pinned',
+                ):
+                        if type(value)==str:
+                                self._content[field] = (value.lower()=='true')
+                        elif type(value)==bool:
+                                self._content[field] = value
+                        else:
+                                raise ValueError('we need a string or a bool')
+
+                elif field in (
+                                # Lists
+                                'tags',
+                ):
+                        if type(value)==list:
+                                self._content[field] = value
+                        else:
+                                raise ValueError('we need a list')
+
+                elif field=='uuid':
+                        raise KeyError('uuid must be set in the constructor')
+
+                else:
+                        raise KeyError(field)
+
 
 

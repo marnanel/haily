@@ -7,6 +7,18 @@ import datetime
 
 BASIC_PERMISSIONS = 0o100644
 
+def escape_name(name):
+        return name. \
+                replace('\\',r'\\'). \
+                replace('.',r'\.'). \
+                replace('/',r'\/')
+
+def unescape_name(name):
+        return name. \
+                replace(r'\/','/'). \
+                replace(r'\.','.'). \
+                replace(r'\\','\\')
+
 class HailyRepo(object):
         """
         This class doesn't handle authentication.
@@ -32,10 +44,18 @@ class HailyRepo(object):
         def putNote(self, note):
                 print 'got note:', note
 
+                # FIXME
+                # We need an accessor in the Note so we can get the title
+                # New notes should keep None in the title which is
+                # turned into "None" on stringification,
+                # but the accessor can see it's None,
+                # so this function can replace it with "New note 123".
+                # FIXME also we need to convert the title to b''.
+                filename = b'notes/'+escape_name(note['title'])
                 noteBlob = Blob.from_string(str(note))
 
                 tree = Tree()
-                tree.add(b'test', BASIC_PERMISSIONS, noteBlob.id)
+                tree.add(filename, BASIC_PERMISSIONS, noteBlob.id)
 
                 commit = Commit()
                 commit.tree = tree.id

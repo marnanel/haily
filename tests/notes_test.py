@@ -1,14 +1,15 @@
 from haily.notes import HailyNote
 import re
 import nose.tools
+from uuid import uuid4
 
-I_LIKE_CATS = """Title: Cats
-Note-Content-Version: 0.1
-Open-On-Startup: False
-Pinned: True
-Tag: cats
-Tag: animals
-Tag: things I like
+I_LIKE_CATS = """title: Cats
+note-content-version: 0.1
+open-on-startup: False
+pinned: True
+tag: cats
+tag: animals
+tag: things I like
 
 I like cats."""
 
@@ -27,13 +28,13 @@ def create_test():
         note = HailyNote()
 
 def create_defaults_test():
-        EXPECT = """Title: New note
-Note-Content-Version: 0.1
-Open-On-Startup: False
-Pinned: False
-Last-Change-Date:(date)
-Last-Metadata-Change-Date:(date)
-Create-Date:(date)
+        EXPECT = """title: New note
+note-content-version: 0.1
+open-on-startup: False
+pinned: False
+last-change-date:(date)
+last-metadata-change-date:(date)
+create-date:(date)
 
 Describe your note here."""
 
@@ -41,19 +42,41 @@ Describe your note here."""
         nose.tools.eq_(_remove_dates(str(note)), EXPECT)
 
 def create_from_string_test():
-        EXPECT = """Title: Cats
-Note-Content-Version: 0.1
-Open-On-Startup: False
-Pinned: True
-Last-Change-Date:(date)
-Last-Metadata-Change-Date:(date)
-Create-Date:(date)
-Tag: cats
-Tag: animals
-Tag: things I like
+        EXPECT = """title: Cats
+note-content-version: 0.1
+open-on-startup: False
+pinned: True
+last-change-date:(date)
+last-metadata-change-date:(date)
+create-date:(date)
+tag: cats
+tag: animals
+tag: things I like
 
 I like cats."""
 
         note = HailyNote(I_LIKE_CATS)
         nose.tools.eq_(_remove_dates(str(note)), EXPECT)
+
+def create_without_uuid_test():
+        note1 = HailyNote()
+        note2 = HailyNote()
+
+        note1uuid = note1['uuid']
+        note2uuid = note2['uuid']
+
+        if note1uuid is None or note2uuid is None:
+                raise AssertionError('uuids are None')
+
+        nose.tools.assert_not_equal(
+                note1uuid,
+                note2uuid)
+
+def create_with_uuid_test():
+        uuid = uuid4()
+        note = HailyNote(uuid=uuid)
+        nose.tools.eq_(
+                note['uuid'],
+                uuid)
+
 
