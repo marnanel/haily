@@ -52,30 +52,19 @@ class HailyNote(object):
         def __str__(self):
                 message = email.message.Message()
 
-                # Strings and booleans
                 for field in ('title', 'note-content-version',
-                        'open-on-startup', 'pinned'):
-
+                        'open-on-startup', 'pinned',
+                        'last-change-date',
+                        'last-metadata-change-date',
+                        'create-date',
+                        ):
+ 
                         message.add_header(field,
-                                str(self._content[field]))
+                                self.getItem(field, as_string=True))
 
-                # Dates
-                for field in (
-                                'last-change-date',
-                                'last-metadata-change-date',
-                                'create-date',
-                                ):
-                        value = self._content[field]
-                        if value is None:
-                                value = datetime.datetime.now()
-
-                        message.add_header(field, str(value))
-
-                # Tags
                 for tag in self._content['tags']:
                         message.add_header('tag', tag)
 
-                # note-content, stored as the payload (body) of the message
                 message.set_payload(self._content['note-content'])
 
                 return message.as_string()
