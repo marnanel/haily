@@ -10,12 +10,12 @@ class HailyNote(object):
 
         def __init__(self,
                 source=None,
-                uuid=None):
+                guid=None):
 
                 now = datetime.datetime.now()
 
-                if uuid is None:
-                        uuid = uuid4()
+                if guid is None:
+                        guid = uuid4()
 
                 self._content = {
                                 'title': 'New note',
@@ -27,7 +27,7 @@ class HailyNote(object):
                                 'open-on-startup': False,
                                 'pinned': False,
                                 'tags': [],
-                                'uuid': uuid,
+                                'guid': guid,
                 }
 
                 if source is not None:
@@ -143,8 +143,8 @@ class HailyNote(object):
                         else:
                                 raise ValueError('we need a list')
 
-                elif field=='uuid':
-                        raise KeyError('uuid must be set in the constructor')
+                elif field=='guid':
+                        raise KeyError('guid must be set in the constructor')
 
                 else:
                         raise KeyError(field)
@@ -158,7 +158,7 @@ class HailyNote(object):
                         'last-change-date', 'last-metadata-change-date',
                         'create-date',
                         'open-on-startup', 'pinned',
-                        'uuid',
+                        'guid',
                         ):
                         obj[field] = self.getItem(field, as_string=True)
 

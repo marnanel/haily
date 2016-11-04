@@ -59,25 +59,25 @@ I like cats."""
         note = HailyNote(I_LIKE_CATS)
         nose.tools.eq_(_remove_dates(str(note)), EXPECT)
 
-def create_without_uuid_test():
+def create_without_guid_test():
         note1 = HailyNote()
         note2 = HailyNote()
 
-        note1uuid = note1['uuid']
-        note2uuid = note2['uuid']
+        note1guid = note1['guid']
+        note2guid = note2['guid']
 
-        if note1uuid is None or note2uuid is None:
-                raise AssertionError('uuids are None')
+        if note1guid is None or note2guid is None:
+                raise AssertionError('guids are None')
 
         nose.tools.assert_not_equal(
-                note1uuid,
-                note2uuid)
+                note1guid,
+                note2guid)
 
-def create_with_uuid_test():
+def create_with_guid_test():
         uuid = uuid4()
-        note = HailyNote(uuid=uuid)
+        note = HailyNote(guid=uuid)
         nose.tools.eq_(
-                note['uuid'],
+                note['guid'],
                 uuid)
 
 def as_json_test():
