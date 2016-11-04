@@ -1,9 +1,62 @@
 from haily.notes import HailyNote
 from haily.repo import HailyRepo
+from dulwich.repo import Repo
+import tempfile
+
+MASTER = 'refs/heads/master'
+
+# XXX we need a teardown routine to remove the directory
+
+def make_test_repo():
+        directory = tempfile.mkdtemp(
+                prefix='hailyTest',
+                )
+        print directory
+
+        Repo.init_bare(path=directory)
+
+        repo = HailyRepo(root=directory)
+        return repo
+
+def assert_notes_in_repo(repo, notes):
+        tree = repo[repo[MASTER].tree]
+
+        found = [x.path for x in tree.items() if x.path.startswith('notes/')]
+        want = [b'notes/'+bytes(x['uuid']) for x in notes]
+
+        assert set(found)==set(want)
+
+def put_notes_in_repo(repo, notes):
+        for note in notes:
+                repo.addNote(notes)
 
 def putnote_test():
-        repo = HailyRepo('/home/marnanel/proj/hailyNotes/')
-        note = HailyNote()
+        repo = make_test_repo()
 
-        repo.putNote(note)
+        note = HailyNote()
+        repo.putHailyNote(note)
+
+        assert_notes_in_repo(repo, [note])
+
+def put_2_notes_test():
+        repo = make_test_repo()
+
+        note1 = HailyNote()
+        note2 = HailyNote()
+        repo.putHailyNote(note1)
+        repo.putHailyNote(note2)
+
+        assert_notes_in_repo(repo, [note1, note2])
+
+def replace_note_test():
+
+        repo = make_test_repo()
+
+        note1 = HailyNote()
+        repo.putHailyNote(note1)
+
+        note2 = HailyNote(uuid=note1['uuid'])
+        repo.putHailyNote(note2)
+
+        assert_notes_in_repo(repo, [note2])
 
