@@ -4,7 +4,6 @@ import email.utils
 import time
 import datetime
 from uuid import uuid4
-import json
 
 class HailyNote(object):
 
@@ -149,7 +148,7 @@ class HailyNote(object):
                 else:
                         raise KeyError(field)
 
-        def as_json(self):
+        def as_dict(self):
 
                 obj = {}
 
@@ -164,4 +163,5 @@ class HailyNote(object):
 
                 obj['tags'] = self['tags']
 
-                return json.dumps(obj, sort_keys=True, indent=8)
+                return obj
+

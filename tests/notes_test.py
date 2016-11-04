@@ -82,7 +82,7 @@ def create_with_guid_test():
 
 def as_json_test():
         note = HailyNote()
-        obj = json.loads(note.as_json())
+        obj = note.as_dict()
         
         EXPECT = {
                 "note-content": "Describe your note here.", 
