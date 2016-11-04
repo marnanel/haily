@@ -1,6 +1,7 @@
 from haily.notes import HailyNote
 import re
 import nose.tools
+import json
 from uuid import uuid4
 
 I_LIKE_CATS = """title: Cats
@@ -79,4 +80,19 @@ def create_with_uuid_test():
                 note['uuid'],
                 uuid)
 
+def as_json_test():
+        note = HailyNote()
+        obj = json.loads(note.as_json())
+        
+        EXPECT = {
+                "note-content": "Describe your note here.", 
+                "note-content-version": "0.1", 
+                "open-on-startup": "False", 
+                "pinned": "False", 
+                "tags": [], 
+                "title": "New note", 
+        }
+
+        for (key, value) in EXPECT.items():
+                assert obj[key]==value
 

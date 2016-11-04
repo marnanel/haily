@@ -1,8 +1,10 @@
 import git
 import email.message
 import email.utils
+import time
 import datetime
 from uuid import uuid4
+import json
 
 class HailyNote(object):
 
@@ -79,9 +81,27 @@ class HailyNote(object):
                 return message.as_string()
 
         def __getitem__(self, field):
-                return self._content[field]
+                return self.getItem(field,
+                        as_string=False)
 
         def __setitem__(self, field, value):
+                return self.setItem(field, value)
+
+        def getItem(self, field, as_string=False):
+                value = self._content[field]
+
+                if as_string:
+                        if type(value)==datetime.datetime:
+                                return value.isoformat()
+                        else:
+                                return str(value)
+                else:
+                        return value
+
+        def setItem(self, field, value):
+
+                # XXX at some point this should have a parameter
+                # to specify whether to update the metadata change time too
 
                 if value is None:
                         raise ValueError('value was None')
@@ -140,5 +160,19 @@ class HailyNote(object):
                 else:
                         raise KeyError(field)
 
+        def as_json(self):
 
+                obj = {}
 
+                for field in (
+                        'title', 'note-content', 'note-content-version',
+                        'last-change-date', 'last-metadata-change-date',
+                        'create-date',
+                        'open-on-startup', 'pinned',
+                        'uuid',
+                        ):
+                        obj[field] = self.getItem(field, as_string=True)
+
+                obj['tags'] = self['tags']
+
+                return json.dumps(obj, sort_keys=True, indent=8)
