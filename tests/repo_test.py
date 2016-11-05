@@ -60,3 +60,19 @@ def replace_note_test():
 
         assert_notes_in_repo(repo, [note2])
 
+def split_commit_test():
+
+        repo = make_test_repo()
+
+        note1 = HailyNote()
+        repo.putHailyNote(note1,
+                doCommit=False)
+
+        note2 = HailyNote()
+        repo.putHailyNote(note2)
+
+        assert_notes_in_repo(repo, [note1, note2])
+
+        # ...and assert that there's only one commit
+        commit = repo[repo.refs[MASTER]]
+        assert len(commit.parents)==0
