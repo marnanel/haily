@@ -17,6 +17,10 @@ class HailyRepo(Repo):
         which is good because it's not obvious which note
         the ID number given should refer to.
         """
+
+        def __init__(self, *args, **kwargs):
+                super(HailyRepo, self).__init__(*args, **kwargs)
+                self.partialTree = None
         
         def getHailyUser(self, username):
                 pass
@@ -29,7 +33,7 @@ class HailyRepo(Repo):
         def putHailyNote(self, note,
                 branch=MASTER):
 
-                filename = b'notes/'+bytes(note['uuid'])
+                filename = b'notes/'+bytes(note['guid'])
                 noteBlob = Blob.from_string(bytes(note))
 
                 if MASTER in self:
@@ -47,7 +51,7 @@ class HailyRepo(Repo):
                 commit.message = 'Hello world'
 
                 commit.commit_time = commit.author_time = int(time())
-                tz = parse_timezone(b'-0200')[0]
+                tz = parse_timezone(b'+0000')[0]
                 commit.commit_timezone = commit.author_timezone = tz
 
                 store = self.object_store

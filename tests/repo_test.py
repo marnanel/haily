@@ -22,7 +22,7 @@ def assert_notes_in_repo(repo, notes):
         tree = repo[repo[MASTER].tree]
 
         found = [x.path for x in tree.items() if x.path.startswith('notes/')]
-        want = [b'notes/'+bytes(x['uuid']) for x in notes]
+        want = [b'notes/'+bytes(x['guid']) for x in notes]
 
         assert set(found)==set(want)
 
@@ -55,7 +55,7 @@ def replace_note_test():
         note1 = HailyNote()
         repo.putHailyNote(note1)
 
-        note2 = HailyNote(uuid=note1['uuid'])
+        note2 = HailyNote(guid=note1['guid'])
         repo.putHailyNote(note2)
 
         assert_notes_in_repo(repo, [note2])
