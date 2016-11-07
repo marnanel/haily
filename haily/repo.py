@@ -81,12 +81,22 @@ class HailyRepo(Repo):
                 self._partialTree.add(filename, BASIC_PERMISSIONS, noteBlob.id)
 
                 if doCommit:
-                        self._commit()
+                        self.hailyCommit()
 
-        def _commit(self):
+        def hailyCommit(self):
+                """
+                Finishes a partial commit-- one that was started
+                by passing doCommit=False to putHailyNote or
+                deleteHailyNote. You can also commit by
+                adding or deleting another note and
+                passing doCommit=True (the default).
+
+                If there's no partial commit in progress,
+                does nothing.
+                """
 
                 if self._partialTree is None:
-                        raise ValueError("attempted commit on empty tree")
+                        return
 
                 if self._commitMessage=='':
                         self._commitMessage = 'Haily checkin'
