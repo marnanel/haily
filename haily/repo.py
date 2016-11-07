@@ -46,18 +46,11 @@ class HailyRepo(Repo):
                         note['guid'],
                         )
 
-        def putHailyNote(self, note,
-                branch=MASTER,
-                doCommit=True,
-                commitMessage=None):
-
-                filename = b'notes/'+bytes(note['guid'])
-                noteBlob = Blob.from_string(bytes(note))
-
+        def _ensurePartialTree(self):
                 if self._partialTree is not None:
                         # we were partway through a commit,
                         # so just pick up the tree where we left off
-                        pass
+                        return
                 elif MASTER in self:
                         # grab the tree from the master branch,
                         # if we can
@@ -67,6 +60,16 @@ class HailyRepo(Repo):
                         # when there's no master ref,
                         # for example in a completely new repo.
                         self._partialTree = Tree()
+
+        def putHailyNote(self, note,
+                branch=MASTER,
+                doCommit=True,
+                commitMessage=None):
+
+                filename = b'notes/'+bytes(note['guid'])
+                noteBlob = Blob.from_string(bytes(note))
+
+                self._ensurePartialTree()
 
                 if filename in self._partialTree:
                         operationName = 'changed'
