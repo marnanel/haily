@@ -120,6 +120,25 @@ class HailyRepo(Repo):
                 self._partialTree = None
                 self._commitMessage = ''
 
-        def deleteHailyNote(self, guid):
-                pass
+        def deleteHailyNote(self, note,
+                branch=MASTER,
+                doCommit=True,
+                commitMessage=None):
+
+                filename = b'notes/'+bytes(note['guid'])
+
+                self._ensurePartialTree()
+
+                if filename not in self._partialTree:
+                        raise ValueError(note['guid']+" not found to delete")
+
+                self._commitMessage += self._describeNoteOperation(
+                        'deleted',
+                        note,
+                        )
+
+                del self._partialTree[filename]
+
+                if doCommit:
+                        self.hailyCommit()
 
