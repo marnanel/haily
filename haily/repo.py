@@ -113,6 +113,9 @@ class HailyRepo(Repo):
                 tz = parse_timezone(b'+0000')[0]
                 commit.commit_timezone = commit.author_timezone = tz
 
+                if MASTER in self:
+                        commit.parents = [self.refs[MASTER]]
+
                 self.object_store.add_object(self._partialTree)
                 self.object_store.add_object(commit)
                 self.refs[MASTER] = commit.id
@@ -141,4 +144,24 @@ class HailyRepo(Repo):
 
                 if doCommit:
                         self.hailyCommit()
+
+        def numberOfCommits(self):
+                if not MASTER in self:
+                        return 0
+
+                result = 0
+                commit = self[self.refs[MASTER]]
+
+                while commit is not None:
+
+                        result += 1
+                        if len(commit.parents)==0:
+                                break
+
+                        # A commit could have multiple parents,
+                        # but it's not clear what we should do
+                        # about that. So let's just take the first one.
+                        commit = self[commit.parents[0]]
+
+                return result
 

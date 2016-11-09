@@ -11,8 +11,6 @@ def make_test_repo():
         directory = tempfile.mkdtemp(
                 prefix='hailyTest',
                 )
-        print directory
-
         Repo.init_bare(path=directory)
 
         repo = HailyRepo(root=directory)
@@ -92,5 +90,16 @@ def delete_note_test():
         repo.deleteHailyNote(note1)
 
         assert_notes_in_repo(repo, [note2])
+
+def count_commits_test():
+
+        repo = make_test_repo()
+        assert(repo.numberOfCommits()==0)
+
+        repo.putHailyNote(HailyNote())
+        assert(repo.numberOfCommits()==1)
+
+        repo.putHailyNote(HailyNote())
+        assert(repo.numberOfCommits()==2)
 
 
