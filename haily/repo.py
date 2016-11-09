@@ -34,10 +34,26 @@ class HailyRepo(Repo):
         def getHailyUser(self, username):
                 pass
 
-        def listHailyNotes(self,
-                since=None,
-                ):
-                pass
+        def currentNoteGUIDs(self):
+                """
+                Returns a set of strings, the GUIDs of the
+                notes currently in the tree.
+
+                Possibly we should return notes instead?
+                """
+                result = set()
+
+                if MASTER not in self:
+                        return result
+
+                tree = self[self[MASTER].tree]
+
+                for item in tree.iteritems():
+                        if item.path.startswith('notes/'):
+                                guid = item.path[6:]
+                                result.add(guid)
+
+                return result
 
         def _describeNoteOperation(self, opName, note):
                 return '%10s: %-30s %36s\n' % (

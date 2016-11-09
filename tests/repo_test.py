@@ -102,4 +102,24 @@ def count_commits_test():
         repo.putHailyNote(HailyNote())
         assert(repo.numberOfCommits()==2)
 
+def currentNotes_test():
+        repo = make_test_repo()
+
+        note1 = HailyNote()
+        note2 = HailyNote()
+        note1guid = str(note1['guid'])
+        note2guid = str(note2['guid'])
+
+        assert repo.currentNoteGUIDs() == set([])
+
+        repo.putHailyNote(note1)
+        assert repo.currentNoteGUIDs() == set([note1guid])
+
+        repo.putHailyNote(note2)
+        assert repo.currentNoteGUIDs() == set([note1guid, note2guid])
+
+        repo.deleteHailyNote(note1)
+        assert repo.currentNoteGUIDs() == set([note2guid])
+
+
 
