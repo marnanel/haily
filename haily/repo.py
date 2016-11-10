@@ -41,17 +41,68 @@ class HailyRepo(Repo):
 
                 Possibly we should return notes instead?
                 """
-                result = set()
-
                 if MASTER not in self:
-                        return result
+                        return set([])
 
                 tree = self[self[MASTER].tree]
+                return self._noteGUIDsInTree(tree)
+
+        def _noteGUIDsInTree(self, tree):
+                result = set()
 
                 for item in tree.iteritems():
                         if item.path.startswith('notes/'):
                                 guid = item.path[6:]
                                 result.add(guid)
+
+                return result
+
+        def noteGUIDsSince(self, since):
+
+                result = set()
+
+                if not MASTER in self:
+                        return result
+
+                # The protocol counts the first commit as 1.
+                # But we're starting counting from the
+                # latest commit. So we have to know the
+                # number of commits to convert them.
+                commitsCount = self.numberOfCommits()
+
+                theseGUIDs = thoseGUIDs = None
+                commit = self[MASTER]
+
+                # For every commit in the history,
+                # "theseGUIDs" is the set of notes which
+                # existed as of that commit, and
+                # "thoseGUIDs" is the set of notes which
+                # existed in the commit immediately after it.
+                # (Since we're moving backwards through time,
+                # the commit immediately after it is the
+                # one we've just looked at.)
+                for i in range((commitsCount-since)+1):
+
+                        if commit is None:
+                                # there's no commit, so no notes
+                                theseGUIDs = set([])
+                        else:
+                                theseGUIDs = self._noteGUIDsInTree(self[commit.tree])
+
+                        if thoseGUIDs is not None:
+
+                                diff = thoseGUIDs.difference(theseGUIDs)
+                                result = result.union(diff)
+
+                        thoseGUIDs = theseGUIDs
+
+                        if commit is None or len(commit.parents)==0:
+                                # Final time round:
+                                # the first commit came after
+                                # an empty tree.
+                                commit = None
+                        else:
+                                commit = self[commit.parents[0]]
 
                 return result
 

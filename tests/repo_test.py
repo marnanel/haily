@@ -111,15 +111,19 @@ def currentNotes_test():
         note2guid = str(note2['guid'])
 
         assert repo.currentNoteGUIDs() == set([])
+        #assert repo.noteGUIDsSince(0) == set([])
 
         repo.putHailyNote(note1)
         assert repo.currentNoteGUIDs() == set([note1guid])
+        #assert repo.noteGUIDsSince(0) == set([note1guid])
 
         repo.putHailyNote(note2)
         assert repo.currentNoteGUIDs() == set([note1guid, note2guid])
+        assert repo.noteGUIDsSince(0) == set([note1guid, note2guid])
+        assert repo.noteGUIDsSince(1) == set([note2guid])
 
         repo.deleteHailyNote(note1)
         assert repo.currentNoteGUIDs() == set([note2guid])
-
+        #assert repo.noteGUIDsSince(0) == set([note1guid])
 
 
