@@ -3,10 +3,47 @@ from haily.repo import HailyRepo
 from dulwich.repo import Repo
 import tempfile
 import nose.tools
+import shutil
 
 MASTER = 'refs/heads/master'
 
-# XXX we need a teardown routine to remove the directory
+class RepoTestAncestor(object):
+        def setUp(self):
+                self._tempdir = tempfile.mkdtemp(
+                        prefix='hailyTest',
+                        )
+                Repo.init_bare(path=self._tempdir)
+
+                self._repo = HailyRepo(root=self._tempdir)
+
+        def tearDown(self):
+                shutil.rmtree(self._tempdir)
+
+        def _assert_notes_in_repo(self, notes):
+                tree = self._repo[self._repo[MASTER].tree]
+
+                found = [x.path for x in tree.items() if x.path.startswith('notes/')]
+                want = [b'notes/'+bytes(x['guid']) for x in notes]
+
+                assert set(found)==set(want)
+
+class PutNote_Test(RepoTestAncestor):
+
+        def test_case(self):
+                note = HailyNote()
+                self._repo.putHailyNote(note)
+
+                self._assert_notes_in_repo([note])
+
+class Put2Notes_Test(RepoTestAncestor):
+
+        def test_case(self):
+                note1 = HailyNote()
+                note2 = HailyNote()
+                self._repo.putHailyNote(note1)
+                self._repo.putHailyNote(note2)
+
+                self._assert_notes_in_repo([note1, note2])
 
 def make_test_repo():
         directory = tempfile.mkdtemp(
@@ -24,28 +61,6 @@ def assert_notes_in_repo(repo, notes):
         want = [b'notes/'+bytes(x['guid']) for x in notes]
 
         assert set(found)==set(want)
-
-def put_notes_in_repo(repo, notes):
-        for note in notes:
-                repo.addNote(notes)
-
-def putnote_test():
-        repo = make_test_repo()
-
-        note = HailyNote()
-        repo.putHailyNote(note)
-
-        assert_notes_in_repo(repo, [note])
-
-def put_2_notes_test():
-        repo = make_test_repo()
-
-        note1 = HailyNote()
-        note2 = HailyNote()
-        repo.putHailyNote(note1)
-        repo.putHailyNote(note2)
-
-        assert_notes_in_repo(repo, [note1, note2])
 
 def replace_note_test():
 
