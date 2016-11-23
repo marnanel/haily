@@ -4,6 +4,7 @@ from time import time
 import email.message
 import email.utils
 import datetime
+from haily.notes import HailyNote
 
 BASIC_PERMISSIONS = 0o100644
 MASTER = 'refs/heads/master'
@@ -34,12 +35,14 @@ class HailyRepo(Repo):
         def getHailyUser(self, username):
                 pass
 
+        def currentNotes(self):
+                return [HailyNote(guid=guid)
+                        for guid in self.currentNoteGUIDs()]
+
         def currentNoteGUIDs(self):
                 """
                 Returns a set of strings, the GUIDs of the
                 notes currently in the tree.
-
-                Possibly we should return notes instead?
                 """
                 if MASTER not in self:
                         return set([])
@@ -229,6 +232,14 @@ class HailyRepo(Repo):
                         # but it's not clear what we should do
                         # about that. So let's just take the first one.
                         commit = self[commit.parents[0]]
+
+                return result
+
+        def as_dict(self):
+                result = {
+                        "latest-sync-revision": self.numberOfCommits(),
+                        "notes": [note.as_dict() for note in self.currentNotes()],
+                        }
 
                 return result
 
