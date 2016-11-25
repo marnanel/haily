@@ -1,5 +1,6 @@
 import BaseHTTPServer
 import SocketServer
+import json
 
 class HailyRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
 
@@ -19,11 +20,18 @@ class HailyRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
 
                 result = self._root_handler()
 
-                self.send_response(200, result)
+                payload = json.dumps(result,
+                        indent=4,
+                        sort_keys=True)
+
+                self.send_response(200)
+                self.wfile.write("Content-Type: text/json\n")
+                self.wfile.write("Content-Length: %d\n" % (len(payload),))
+                self.wfile.write("\n%s" % (payload,))
 
 # first request is GET /api/1.0/
 
-def run(host="", port=8000):
+def run(host="", port=8001):
         
         handler = HailyRequestHandler
 
